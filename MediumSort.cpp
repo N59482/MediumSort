@@ -13,6 +13,9 @@ class MediumSort
         MediumSort(const int & SIZE);
         MediumSort() : MediumSort(10) { /*cout<<"Call constructor(10)\n";*/ }
         ~MediumSort();
+        void MergeSort();
+        void Split(int * a, int left, int right);
+        void Merge();
         void rand_fill(const int & up_border); // заполнение массива случайными элементами
         void show();
         bool is_sorted(); // проверка на сортировку.
@@ -51,16 +54,38 @@ bool MediumSort::is_sorted()
         return true;
     }
 
-int main()
-{
-    srand(time(0));
-    MediumSort arr1(3);
-    int tests = 10;
-    for(int i = 0; i < tests; i++)
+void MediumSort::Split(int * a, int left, int right)
     {
+        cout<<"Вызвана функция Split от "<<left<<" до "<<right<<endl; 
+        if(left == right){ cout<<"Выход\n"; return;};
+        int mid = left + (right - left) / 2;
+        cout<<"Центр - "<<mid<<endl;
+        Split(a,left,mid);
+        Split(a,mid+1,right);
+        return;
+    };
+
+void MediumSort::MergeSort()
+    {
+        int left = 0;
+        int right = SIZE-1;
+        Split(arr, left, right);
+    };
+
+int main()
+    {
+        srand(time(0));
+        MediumSort arr1(5);
+        int tests = 3;
+        for(int i = 0; i < tests; i++)
+        // {
+        //     arr1.rand_fill(10);
+        //     arr1.show();
+        //     cout<<((arr1.is_sorted())? "collection is sorted":"collection is NOT sorted")<<endl;
+        // };
+
         arr1.rand_fill(10);
         arr1.show();
-        cout<<((arr1.is_sorted())? "collection is sorted":"collection is NOT sorted")<<endl;
-    };
-    return 0;
-}
+        arr1.MergeSort();
+        return 0;
+    }

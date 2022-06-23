@@ -1,21 +1,22 @@
 #include <iostream>
 #include <cstdlib>
+#include <memory>
+#include <ctime>
 
 using namespace std;
 
 class MediumSort
     {
-        private:
+        public:
         int * arr;
         int SIZE;
+        private:
         int * end;
         public:
         MediumSort(const int & SIZE);
         MediumSort() : MediumSort(10) { /*cout<<"Call constructor(10)\n";*/ }
         ~MediumSort();
-        void MergeSort();
-        void Split(int * a, int left, int right);
-        void Merge();
+        void MergeSort(int* arr, int size); // сортировка слиянием
         void rand_fill(const int & up_border); // заполнение массива случайными элементами
         void show();
         bool is_sorted(); // проверка на сортировку.
@@ -54,38 +55,151 @@ bool MediumSort::is_sorted()
         return true;
     }
 
-void MediumSort::Split(int * a, int left, int right)
+void MediumSort::MergeSort(int* arr, int size)
     {
-        cout<<"Вызвана функция Split от "<<left<<" до "<<right<<endl; 
-        if(left == right){ cout<<"Выход\n"; return;};
-        int mid = left + (right - left) / 2;
-        cout<<"Центр - "<<mid<<endl;
-        Split(a,left,mid);
-        Split(a,mid+1,right);
-        return;
-    };
+        if(size > 1)
+            {
+                int mid = size / 2; 
+                MergeSort(arr, mid);// левая часть
+                MergeSort(&arr[mid], size - mid); // правая часть
+                
+                // индексы
+                int li = 0, ri = mid, tmpi = 0;
+                
+                unique_ptr<int[]> tmp_arr(new int[size]);
 
-void MediumSort::MergeSort()
-    {
-        int left = 0;
-        int right = SIZE-1;
-        Split(arr, left, right);
+                while((li < mid) || (ri < size))
+                    {
+                        if(arr[li] <= arr[ri]) 
+                            {
+                                tmp_arr[tmpi] = move(arr[li]);
+                                tmpi++;
+                                li++;
+                            }
+                        else 
+                            {
+                                tmp_arr[tmpi] = arr[ri];
+                                tmpi++;
+                                ri++;
+                            };
+                        // если левая и правая части разного размера.
+                        if(li == mid)
+                            {
+                                for(ri;ri < size; ri++)
+                                    tmp_arr[tmpi++] = arr[ri];
+                            };
+                        if(ri == size)
+                            {
+                                for(li;li < mid; li++)
+                                    tmp_arr[tmpi++] = arr[li];
+                            };
+                    };
+            copy(&tmp_arr[0],&tmp_arr[size],arr);
+            };
+        return;
     };
 
 int main()
     {
         srand(time(0));
         MediumSort arr1(5);
-        int tests = 3;
-        for(int i = 0; i < tests; i++)
-        // {
-        //     arr1.rand_fill(10);
-        //     arr1.show();
-        //     cout<<((arr1.is_sorted())? "collection is sorted":"collection is NOT sorted")<<endl;
-        // };
-
         arr1.rand_fill(10);
         arr1.show();
-        arr1.MergeSort();
+        arr1.MergeSort(arr1.arr, arr1.SIZE);
+        arr1.show();
+        
+        int tests = 30;
+        for(int i = 0; i < tests; i++)
+        {
+            arr1.rand_fill(10);
+            arr1.MergeSort(arr1.arr, arr1.SIZE);
+            cout<<((arr1.is_sorted())? "collection is sorted":"collection is NOT sorted")<<endl;
+         };
         return 0;
-    }
+    };
+
+
+// #include <iostream>
+// #include <memory>
+// #include <ctime>
+
+// using namespace std;
+
+// void show(int* arr, int size)
+//     {
+//        // Вывод
+//         int* end = arr + size;
+//         for(int* it = arr; it < end; it ++)
+//             cout<<*it<<" ";
+//         cout<<endl;
+//     };
+
+// void split(int* arr, int size)
+//     {
+//         if(size > 1)
+//             {
+//                 // cout<<"size = "<<size<<endl;
+//                 show(arr,size);
+//                 int mid = size / 2; 
+//                 split(arr, mid);// левая часть
+//                 split(&arr[mid], size - mid); // правая часть
+                
+//                 // индексы
+//                 int li = 0, ri = mid, tmpi = 0;
+                
+//                 unique_ptr<int[]> tmp_arr(new int[size]); 
+                
+//                 while((li < mid) || (ri < size))
+//                     {
+//                         if(arr[li] <= arr[ri]) 
+//                             {
+//                                 tmp_arr[tmpi] = move(arr[li]);
+//                                 tmpi++;
+//                                 li++;
+//                             }
+//                         else 
+//                             {
+//                                 tmp_arr[tmpi] = arr[ri];
+//                                 tmpi++;
+//                                 ri++;
+//                             };
+//                         if(li == mid)
+//                             {
+//                                 for(ri;ri < size; ri++)
+//                                     tmp_arr[tmpi++] = arr[ri];
+//                             };
+//                         if(ri == size)
+//                             {
+//                                 for(li;li < mid; li++)
+//                                     tmp_arr[tmpi++] = arr[li];
+//                             };
+//                     };
+//                 copy(&tmp_arr[0],&tmp_arr[size],arr);
+//             }
+//         else 
+//             {
+//                 cout<<"size !> 1\n";
+//                 show(arr,size);
+                
+//             };
+//         return;
+//     };
+
+// int main()
+// {
+//     srand(time(NULL));
+//     const int SIZE = 8;
+//     int arr[SIZE];
+//     // Заполнение.
+//     int * end = arr + SIZE;
+//     for(int* it = arr; it < end; it ++)
+//         *it = rand()%10;
+//     // Вывод
+//     show(arr, SIZE);
+    
+//     split(arr, SIZE);
+    
+//     show(arr, SIZE);
+    
+//     return 0;
+// }
